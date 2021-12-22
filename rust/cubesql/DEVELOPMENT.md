@@ -1,8 +1,10 @@
-# Running in standalone mode
+# Development
 
-Prerequisites:
+## Prerequisites:
 
 - `rustup`
+
+# Build and run
 
 ```bash
 rustup default nightly-2021-07-04
@@ -12,6 +14,10 @@ CUBESQL_CUBE_TOKEN=$TOKEN \
 CUBESQL_LOG_LEVEL=debug \
 CUBESQL_BIND_ADDR=0.0.0.0:4444 \
 cargo run
+```
 
+In a separate terminal, run:
+
+```bash
 mysql -u root -h 127.0.0.1 --ssl-mode=disabled -u root --password=test --port 4444
 ```
