@@ -54,7 +54,7 @@ impl SchemaService for NodeBridgeTransport {
             },
             user: Some(ctx.access_token.clone()),
         })?;
-        let response = call_js_with_channel_as_callback::<V1MetaResponse>(
+        let response: serde_json::Value = call_js_with_channel_as_callback(
             self.channel.clone(),
             self.on_meta.clone(),
             Some(extra),
@@ -62,9 +62,16 @@ impl SchemaService for NodeBridgeTransport {
         .await?;
         trace!("[transport] Meta <- {:?}", response);
 
-        Ok(TenantContext {
-            cubes: response.cubes.unwrap_or_default(),
-        })
+        let meta_err = match serde_json::from_value::<V1MetaResponse>(response.clone()) {
+            Ok(r) => {
+                return Ok(TenantContext {
+                    cubes: r.cubes.unwrap_or_default()
+                });
+            },
+            Err(err) => err,
+        };
+
+        return Err(CubeError::from(meta_err));
     }
 
     async fn request(
